@@ -10,15 +10,16 @@ OBJCOPY=arm-none-eabi-objcopy
 
 OBJDIR = build
 
-CFLAGS  = -g -Wall -Wno-missing-braces -std=c99
+CFLAGS  = -Wall -Wno-missing-braces -std=c99
 CFLAGS += -mthumb -mcpu=cortex-m4
+CFLAGS += -Os 
 #CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
 #CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -mfloat-abi=soft
 # TODO: hard float was causing an exception; see what's up.
-LDFLAGS = -Wl,-Map,$(OBJDIR)/$(PROJ_NAME).map -g -Tstm32f4_flash.ld
+LDFLAGS = -Wl,-Map,$(OBJDIR)/$(PROJ_NAME).map -lbamboo_core -g -flto -Oz -Tstm32f4_flash.ld
 
-CFLAGS += -Isrc -I. -Ilibraries/STM32F4xx_StdPeriph_Driver/inc -Ilibraries/CMSIS/ST/STM32F4xx/Include -Ilibraries/CMSIS/Include
+CFLAGS += -Isrc -I. -Llibraries  -Iinclude -Ilibraries/STM32F4xx_StdPeriph_Driver/inc -Ilibraries/CMSIS/ST/STM32F4xx/Include -Ilibraries/CMSIS/Include
 
 OBJS := $(SRCS:.c=.o)
 OBJS := $(OBJS:.s=.o)
@@ -55,7 +56,7 @@ clean:
 
 
 program: $(OBJDIR)/$(PROJ_NAME).elf
-	openocd-0.6.1 -f program.cfg
+	openocd -f program.cfg
 
 
 # Dependdencies
