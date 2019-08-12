@@ -1,5 +1,5 @@
 #include <stm32f4xx_conf.h>
-#include "libbamoo.h"
+#include "libbamboo.h"
 #include <stdint.h>
 
 #define PAYLOAD_LENGTH 5
@@ -65,15 +65,31 @@ int main (void)
 
   args.out_length = MAX_ENTRY_SIZE;
   intptr_t result = publish_ed25519_blake2b_entry(&args);
-	while (1)
-	{
-    args2.out_length = MAX_ENTRY_SIZE;
-    args2.lipmaalink_length = args.out_length;
-    args2.backlink_length = args.out_length;
+  args2.out_length = MAX_ENTRY_SIZE;
+  args2.lipmaalink_length = args.out_length;
+  args2.backlink_length = args.out_length;
 
-    intptr_t result = publish_ed25519_blake2b_entry(&args2);
-    if (result == 0) {
+  intptr_t result2 = publish_ed25519_blake2b_entry(&args2);
+
+  VerifyEd25519Blake2bEntryArgs verify_args = {
+    .payload_bytes = payload,
+    .payload_length = PAYLOAD_LENGTH,
+    .backlink_bytes = out,
+    .backlink_length =  args.out_length,
+    .lipmaalink_bytes = out,
+    .lipmaalink_length =  args.out_length,
+    .entry_bytes = out2,
+    .entry_length = args2.out_length,
+    .is_valid = false,
+  };
+  
+  while(1){
+
+    intptr_t result3 = verify_ed25519_blake2b_entry(&verify_args);
+
+    if (result3 == 0 && verify_args.is_valid) {
       GPIOG->ODR ^= (1 << 13);
     }
-	}
+  }
+
 }
